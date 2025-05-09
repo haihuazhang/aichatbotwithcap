@@ -96,7 +96,7 @@ sap.ui.define([
                 onCreatedEmptyAssistantMessage: function (replyContext) {
                     // 设置Busy状态                        
                     const messageListItem = messageList.getItems().find(item =>
-                        item.getBindingContext() === replyContext
+                        item.getBindingContext("local") === replyContext
                     );
                     if (messageListItem) {
                         messageListItem.setLoading(true);
@@ -110,7 +110,7 @@ sap.ui.define([
                     replyContext.setProperty("content", chunk);
 
                     const messageListItem = messageList.getItems().find(item =>
-                        item.getBindingContext() === replyContext
+                        item.getBindingContext("local") === replyContext
                     );
                     if (messageListItem) {
                         messageListItem.setLoading(false);
