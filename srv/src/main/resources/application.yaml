@@ -1,0 +1,46 @@
+---
+
+ai:
+  deepseek:
+    api-key: your-deepseek-api-key
+    api-url: https://api.siliconflow.cn/v1
+    model: Qwen/Qwen3-30B-A3B
+  openai:
+    api-key: your-openai-api-key
+    api-url: https://api.openai.com/v1
+  claude:
+    api-key: your-claude-api-key
+    api-url: https://api.anthropic.com/v1
+  systemPrompt: |
+    You are a helpful assistant. You can answer questions, provide information, and assist with various tasks. Please respond to the user's queries in a clear and concise manner.
+    If you don't know the answer, say "I don't know" instead of making up an answer.
+    You can also ask clarifying questions if the user's request is not clear.
+    Your goal is to be helpful and informative.
+---
+spring:
+  datasource:
+    password: postgres
+    embedded-database-connection: none
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+  config:
+    activate:
+      on-profile: default
+cds:
+  security:
+    mock:
+      users:
+        admin:
+          password: admin
+          roles:
+          - admin
+        user:
+          password: user
+  data-source:
+    auto-config:
+      enabled: false
+# logging:
+#   level:
+#     '[com.sap.cds.persistence.sql]': TRACE
+#     '[com.sap.cds.persistence.sql-tx]': TRACE
