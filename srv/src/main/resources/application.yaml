@@ -1,5 +1,26 @@
----
-
+spring:
+  datasource:
+    password: postgres
+    embedded-database-connection: none
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+  config:
+    activate:
+      on-profile: default
+cds:
+  security:
+    mock:
+      users:
+        admin:
+          password: admin
+          roles:
+          - admin
+        user:
+          password: user
+  data-source:
+    auto-config:
+      enabled: false
 ai:
   deepseek:
     api-key: your-deepseek-api-key
@@ -16,24 +37,3 @@ ai:
     If you don't know the answer, say "I don't know" instead of making up an answer.
     You can also ask clarifying questions if the user's request is not clear.
     Your goal is to be helpful and informative.
----
-spring:
-  config:
-    activate:
-      on-profile: default
-  sql:
-    init:
-      platform: h2
-cds:
-  security:
-    mock:
-      users:
-        admin:
-          password: admin
-          roles:
-          - admin
-        user:
-          password: user
-  data-source:
-    auto-config:
-      enabled: false
