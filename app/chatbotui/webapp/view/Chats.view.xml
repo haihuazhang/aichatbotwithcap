@@ -1,0 +1,43 @@
+<mvc:View
+    controllerName="chatbotui.controller.Chats"
+    displayBlock="true"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    core:require="{
+		ChatFormatter: 'chatbotui/formatter/ChatFormatter'
+	}"
+    xmlns:mvc="sap.ui.core.mvc"
+>
+    <Page
+        showHeader="false"
+        showNavButton="false"
+    >
+        <content>
+            <List
+                id="chatList"
+                noDataText="No chats available. Create one by clicking on the add button."
+                growing="true"
+                growingScrollToLoad="true"
+                growingThreshold="20"
+                items="{ path: '/Chats', sorter: { path: 'createdAt', descending: true } }"
+                itemPress="onChatPress"
+            >
+                <headerToolbar>
+                    <Toolbar>
+                        <Title text="{i18n>chatToolbarTitle}" />
+                        <ToolbarSpacer />
+                        <Button
+                            type="Emphasized"
+                            icon="sap-icon://add"
+                            press="onAddChat"
+                        />
+                    </Toolbar>
+                </headerToolbar>
+                <StandardListItem
+                    type="Navigation"
+                    title="{title}"
+                />
+            </List>
+        </content>
+    </Page>
+</mvc:View>

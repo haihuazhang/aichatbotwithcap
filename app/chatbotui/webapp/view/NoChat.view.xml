@@ -1,0 +1,10 @@
+<mvc:View controllerName="chatbotui.controller.NoChat" displayBlock="true"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:f="sap.f"
+    xmlns:custom="chatbotui.control"
+    xmlns:layout="sap.ui.layout">
+
+    <MessagePage showHeader="false" text="Welcome to the ChatGPT-like chat app with SAPUI5 and CAP" description="Create or select a chat and let's start chatting." icon="sap-icon://tnt/robot"/>
+
+</mvc:View>

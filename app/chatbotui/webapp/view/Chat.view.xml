@@ -1,0 +1,123 @@
+<mvc:View
+    xmlns:core="sap.ui.core"
+    controllerName="chatbotui.controller.Chat"
+    displayBlock="true"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:webc="sap.ui.webc.main"
+    xmlns:f="sap.f"
+    xmlns:custom="chatbotui.control"
+    core:require="{
+        LayoutManager: 'chatbotui/util/LayoutManager',
+		ChatFormatter: 'chatbotui/formatter/ChatFormatter'
+	}"
+    xmlns:layout="sap.ui.layout"
+    height="100%"
+>
+    <webc:Toast
+        id="steamingEnabledToast"
+        duration="2000"
+        placement="TopCenter"
+    />
+
+    <f:DynamicPage
+        id="chatPage"
+        class="sapUiContentPadding chatPage"
+        showFooter="true"
+    >
+        <!-- DynamicPage Title -->
+        <f:title>
+            <f:DynamicPageTitle>
+                <f:heading>
+                    <Title text="{title}" />
+                </f:heading>
+                <f:actions>
+                    <!-- <Label text="Enable streaming:"></Label>
+					<Switch state="{streamingEnabled}" change="onStreamingEnabledChange"></Switch> -->
+                    <ToolbarSeparator />
+                    <Button
+                        icon="sap-icon://delete"
+                        press="onDeleteChat"
+                        type="Transparent"
+                    />
+                </f:actions>
+                <f:navigationActions>
+                    <!-- Use the LayoutModel directly -->
+                    <!-- <Button
+                        icon="sap-icon://exit-full-screen"
+                        press="getModel('appLayout').exitFullScreen()"
+                        visible="{= ${appLayout>/isFullScreen} }"
+                        type="Transparent"
+                    /> -->
+
+                    <!-- Use the LayoutManager -->
+                    <!-- <Button
+                        icon="sap-icon://full-screen"
+                        press="LayoutManager.getInstance().setMidColumnFullScreen()"
+                        visible="{= !${appLayout>/isFullScreen} }"
+                        type="Transparent"
+                    /> -->
+                </f:navigationActions>
+            </f:DynamicPageTitle>
+        </f:title>
+        <!-- DynamicPage Header -->
+        <f:content>
+            <VBox id="_IDGenVBoxWithStream" class="sapUiMediumMarginBottom">
+                    <List
+                        id="messageListWithStream"
+                        showNoData="false"
+                        showSeparators="Inner"
+                        items="{ 
+                            path: 'local>/messages', 
+                            sorter: { path: 'chatTime', descending: false },
+                            filters: {
+                                path: 'role',
+                                operator: 'NE',
+                                value1: 'system'
+                            },
+                            parameters: {
+                                $$updateGroupId: 'changes'
+                            }
+                        }"
+                    >
+                        <custom:ChatMessageListItem id="_IDGenChatMessageListItemWithStream"
+                            message="{local>content}"
+                            sender="{local>role}"
+                            date="{path: 'local>chatTime',type: 'sap.ui.model.odata.type.DateTimeOffset'
+                            }"
+                            class="customMessageListItem sapUiSmallMargin">
+                            <custom:customData>
+                                <core:CustomData 
+                                    key="sender" 
+                                    value="{local>role}"
+                                    writeToDom="true"/>
+                            </custom:customData>
+                            <custom:avatar>
+                                <Avatar id="_IDGenAvatarWithStream"
+                                    displaySize="S"
+                                    src="{ path: 'local>role', formatter: 'ChatFormatter.senderIcon' }"
+                                    displayShape="Square"
+                                    backgroundColor="Transparent"
+                                />
+                            </custom:avatar>
+                        </custom:ChatMessageListItem>
+                    </List>
+                    <Text
+                        id="listEndMarkerWithStream"
+                        text=""
+                        visible="true"
+                    />
+                </VBox>
+        </f:content>
+        <!-- DynamicPage Footer -->
+        <f:footer>
+            <OverflowToolbar>
+                <FeedInput
+                    id="newMessageInput"
+                    post="onPostMessage"
+                    showIcon="false"
+                />
+            </OverflowToolbar>
+        </f:footer>
+    </f:DynamicPage>
+</mvc:View>

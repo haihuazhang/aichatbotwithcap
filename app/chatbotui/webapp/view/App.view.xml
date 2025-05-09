@@ -1,0 +1,9 @@
+<mvc:View controllerName="chatbotui.controller.App"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+    xmlns:f="sap.f"
+    xmlns="sap.m"
+    height="100%">
+			<f:FlexibleColumnLayout id="flexibleColumnLayout" layout="{appLayout>/currentLayout}" backgroundDesign="Solid">
+				<!-- Dynamic filled content -->
+			</f:FlexibleColumnLayout>
+</mvc:View>
