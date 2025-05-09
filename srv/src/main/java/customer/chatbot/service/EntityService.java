@@ -12,7 +12,7 @@ import com.sap.cds.Result;
 import com.sap.cds.ql.Insert;
 import com.sap.cds.ql.Select;
 import com.sap.cds.ql.StructuredType;
-
+import com.sap.cds.ql.Update;
 import com.sap.cds.ql.cqn.CqnSelect;
 
 
@@ -97,6 +97,11 @@ public class EntityService {
         // } else {
             // return serviceDraft.newDraft(Insert.into(entityClass).entry(entity));
         // }
+    }
+
+    public void updateChatTitle(AIService service, Chats chat, String title) {
+        chat.setTitle(title);
+        service.run(Update.entity(Chats_.class).data(chat));
     }
 
     // public void updateReport(

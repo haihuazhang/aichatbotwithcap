@@ -1,9 +1,11 @@
 package customer.chatbot.service.AI;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import customer.chatbot.model.CommonAIMessage;
 import customer.chatbot.model.EntityInfo;
 import jakarta.annotation.Nonnull;
 
@@ -11,6 +13,8 @@ public interface AIServiceI {
     public String chat(String userContent, EntityInfo entityInfo);
 
     public SseEmitter chatWithStream(String userContent, EntityInfo entityInfo);
+
+    public String getSummaryfromAI(List<CommonAIMessage> messages, String prompt);
 
     /**
      * Send a chunk to the emitter

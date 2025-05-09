@@ -1,5 +1,6 @@
 package customer.chatbot.service.AI;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -91,7 +92,16 @@ public class DeepSeekAIService implements AIServiceI {
                         });
 
             } finally {
+                // Save the assistant message after streaming
                 chatHelper.saveAssistantMessage(aiService, responseBuilder.toString(), entityInfo);
+
+                // Update the chat title with the summary
+                // 1.Get all messages for the chat
+                List<CommonAIMessage> allMessages = chatHelper.getChatHistory(aiService, entityInfo.getId());
+                // 2.get summary from AI
+                String summary = getSummaryfromAI(allMessages, "Please summarize the conversation. and give me a title");
+                chatHelper.updateChatTitle(aiService, chat, summary);
+
                 SecurityContextHolder.clearContext();
                 AIServiceI.send(emitter, "-----Total Usage-----" + totalUsage.get());
                 emitter.complete();
@@ -126,6 +136,48 @@ public class DeepSeekAIService implements AIServiceI {
                 .putAdditionalBodyProperty("enable_thinking", JsonBoolean.of(false)) // 添加 enable_thinking 参数
                 .build();
         return client.chat().completions().createStreaming(params);
+    }
+
+    @Override
+    public String getSummaryfromAI(List<CommonAIMessage> messages, String prompt) {
+        // Add the summary prompt as a user message
+        List<CommonAIMessage> summaryMessages = new ArrayList<>(messages);
+        summaryMessages.add(new CommonAIMessage("user", prompt));
+
+        // Create OpenAI client
+        OpenAIClient client = OpenAIOkHttpClient.builder()
+                .apiKey(aiProperties.getDeepseek().getApiKey())
+                .baseUrl(aiProperties.getDeepseek().getApiUrl())
+                .build();
+
+        // Create completion parameters
+        ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
+                .model(aiProperties.getDeepseek().getModel())
+                .messages(
+                        summaryMessages.stream()
+                                .map(message -> switch (message.role()) {
+                                    case "user" -> ChatCompletionMessageParam.ofUser(ChatCompletionUserMessageParam
+                                            .builder().content(message.content()).build());
+                                    case "assistant" -> ChatCompletionMessageParam.ofAssistant(ChatCompletionAssistantMessageParam
+                                            .builder().content(message.content()).build());
+                                    case "system" -> ChatCompletionMessageParam.ofSystem(ChatCompletionSystemMessageParam.builder()
+                                            .content(message.content()).build());
+                                    default -> throw new IllegalArgumentException("Invalid role: " + message.role());
+                                })
+                                .toList())
+                .putAdditionalBodyProperty("enable_thinking", JsonBoolean.of(false))
+                .build();
+
+        try {
+            // Get completion response
+            var response = client.chat().completions().create(params);
+            
+            // Extract and return the summary text
+            return response.choices().get(0).message().content().orElse("");
+        } catch (Exception e) {
+            logger.error("Error getting summary from AI: ", e);
+            throw new BusinessException("Failed to generate summary: " + e.getMessage());
+        }
     }
 
 }
