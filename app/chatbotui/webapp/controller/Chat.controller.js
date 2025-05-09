@@ -148,9 +148,6 @@ sap.ui.define([
                     ID: chatId
                 });
             });
-            // const chatList = this.getView().byId("chatList");
-            // const binding = chatList.getBinding("items");
-            // binding.refresh();
         },
 
 

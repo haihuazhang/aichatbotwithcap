@@ -96,11 +96,15 @@ public class DeepSeekAIService implements AIServiceI {
                 chatHelper.saveAssistantMessage(aiService, responseBuilder.toString(), entityInfo);
 
                 // Update the chat title with the summary
-                // 1.Get all messages for the chat
-                List<CommonAIMessage> allMessages = chatHelper.getChatHistory(aiService, entityInfo.getId());
-                // 2.get summary from AI
-                String summary = getSummaryfromAI(allMessages, "Please summarize the conversation. and give me a title");
-                chatHelper.updateChatTitle(aiService, chat, summary);
+                if (chat.getTitle() == null || chat.getTitle().isEmpty()) {
+
+                    // 1.Get all messages for the chat
+                    List<CommonAIMessage> allMessages = chatHelper.getChatHistory(aiService, entityInfo.getId());
+                    // 2.get summary from AI
+                    String summary = getSummaryfromAI(allMessages,
+                            "Please summarize the conversation. and give me a title");
+                    chatHelper.updateChatTitle(aiService, chat, summary);
+                }
 
                 SecurityContextHolder.clearContext();
                 AIServiceI.send(emitter, "-----Total Usage-----" + totalUsage.get());
@@ -142,8 +146,8 @@ public class DeepSeekAIService implements AIServiceI {
     public String getSummaryfromAI(List<CommonAIMessage> messages, String prompt) {
         // Add the summary prompt as a user message
         List<CommonAIMessage> summaryMessages = new ArrayList<>(messages);
-        summaryMessages.add(new CommonAIMessage("user", 
-            "Please give me a brief title (maximum 250 characters) for this conversation. Only return the title, no explanation needed."));
+        summaryMessages.add(new CommonAIMessage("user",
+                "Please give me a brief title (maximum 250 characters) for this conversation. Only return the title, no explanation needed."));
 
         // Create OpenAI client
         OpenAIClient client = OpenAIOkHttpClient.builder()
@@ -158,10 +162,12 @@ public class DeepSeekAIService implements AIServiceI {
                         .map(message -> switch (message.role()) {
                             case "user" -> ChatCompletionMessageParam.ofUser(ChatCompletionUserMessageParam
                                     .builder().content(message.content()).build());
-                            case "assistant" -> ChatCompletionMessageParam.ofAssistant(ChatCompletionAssistantMessageParam
-                                    .builder().content(message.content()).build());
-                            case "system" -> ChatCompletionMessageParam.ofSystem(ChatCompletionSystemMessageParam.builder()
-                                    .content(message.content()).build());
+                            case "assistant" ->
+                                ChatCompletionMessageParam.ofAssistant(ChatCompletionAssistantMessageParam
+                                        .builder().content(message.content()).build());
+                            case "system" ->
+                                ChatCompletionMessageParam.ofSystem(ChatCompletionSystemMessageParam.builder()
+                                        .content(message.content()).build());
                             default -> throw new IllegalArgumentException("Invalid role: " + message.role());
                         })
                         .toList())
@@ -171,7 +177,7 @@ public class DeepSeekAIService implements AIServiceI {
         try {
             // Get completion response
             var response = client.chat().completions().create(params);
-            
+
             // Extract the summary text and ensure it's not too long
             String title = response.choices().get(0).message().content().orElse("");
             // Truncate if longer than 250 chars (leaving room for potential encoding)
