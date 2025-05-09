@@ -142,7 +142,8 @@ public class DeepSeekAIService implements AIServiceI {
     public String getSummaryfromAI(List<CommonAIMessage> messages, String prompt) {
         // Add the summary prompt as a user message
         List<CommonAIMessage> summaryMessages = new ArrayList<>(messages);
-        summaryMessages.add(new CommonAIMessage("user", prompt));
+        summaryMessages.add(new CommonAIMessage("user", 
+            "Please give me a brief title (maximum 250 characters) for this conversation. Only return the title, no explanation needed."));
 
         // Create OpenAI client
         OpenAIClient client = OpenAIOkHttpClient.builder()
@@ -153,18 +154,17 @@ public class DeepSeekAIService implements AIServiceI {
         // Create completion parameters
         ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
                 .model(aiProperties.getDeepseek().getModel())
-                .messages(
-                        summaryMessages.stream()
-                                .map(message -> switch (message.role()) {
-                                    case "user" -> ChatCompletionMessageParam.ofUser(ChatCompletionUserMessageParam
-                                            .builder().content(message.content()).build());
-                                    case "assistant" -> ChatCompletionMessageParam.ofAssistant(ChatCompletionAssistantMessageParam
-                                            .builder().content(message.content()).build());
-                                    case "system" -> ChatCompletionMessageParam.ofSystem(ChatCompletionSystemMessageParam.builder()
-                                            .content(message.content()).build());
-                                    default -> throw new IllegalArgumentException("Invalid role: " + message.role());
-                                })
-                                .toList())
+                .messages(summaryMessages.stream()
+                        .map(message -> switch (message.role()) {
+                            case "user" -> ChatCompletionMessageParam.ofUser(ChatCompletionUserMessageParam
+                                    .builder().content(message.content()).build());
+                            case "assistant" -> ChatCompletionMessageParam.ofAssistant(ChatCompletionAssistantMessageParam
+                                    .builder().content(message.content()).build());
+                            case "system" -> ChatCompletionMessageParam.ofSystem(ChatCompletionSystemMessageParam.builder()
+                                    .content(message.content()).build());
+                            default -> throw new IllegalArgumentException("Invalid role: " + message.role());
+                        })
+                        .toList())
                 .putAdditionalBodyProperty("enable_thinking", JsonBoolean.of(false))
                 .build();
 
@@ -172,8 +172,10 @@ public class DeepSeekAIService implements AIServiceI {
             // Get completion response
             var response = client.chat().completions().create(params);
             
-            // Extract and return the summary text
-            return response.choices().get(0).message().content().orElse("");
+            // Extract the summary text and ensure it's not too long
+            String title = response.choices().get(0).message().content().orElse("");
+            // Truncate if longer than 250 chars (leaving room for potential encoding)
+            return title.length() > 250 ? title.substring(0, 250) : title;
         } catch (Exception e) {
             logger.error("Error getting summary from AI: ", e);
             throw new BusinessException("Failed to generate summary: " + e.getMessage());

@@ -15,10 +15,48 @@ sap.ui.define([
          */
         onInit: function () {
             this.getRouter().getRoute("home").attachPatternMatched(this.onRouteMatched, this);
+
+            // Subscribe to the event bus for title updates
+            var oBus = this.getOwnerComponent().getEventBus();
+            oBus.subscribe("ChatsChannel", "TitleUpdated", this._onRefreshContextByID, this);
         },
 
         onRouteMatched: function (event) {
             this.getView().byId("chatList").getBinding("items").refresh();
+
+
+
+
+        },
+
+        _onRefreshContextByID: function (channel, event, data) {
+            var oList = this.getView().byId("chatList");
+            var oBinding = oList.getBinding("items");
+            
+            // Get all contexts
+            var aContexts = oBinding.getCurrentContexts();
+            
+            // Find the context with matching ID
+            var targetContext = aContexts.find(function(context) {
+                return context.getObject().ID === data.ID;
+            });
+            
+            if (targetContext) {
+                // Refresh the specific context
+                targetContext.refresh();
+                
+                // // Get the index of the context
+                // var iIndex = aContexts.indexOf(targetContext);
+                
+                // // Refresh the corresponding list item
+                // var aItems = oList.getItems();
+                // if (aItems[iIndex]) {
+                //     aItems[iIndex].invalidate();
+                // }
+            } else {
+                // If context not found, refresh the entire binding
+                oBinding.refresh();
+            }
         },
 
         onChatPress: function (event) {

@@ -29,7 +29,10 @@ sap.ui.define([
         onRouteMatched: function (event) {
             const chat = event.getParameter("arguments").chat;
             this.getView().bindElement({
-                path: `/Chats(${chat})`
+                path: `/Chats(${chat})`,
+                parameters: {
+                    $select: ["ID", "title"]
+                }
             });
             // Load messages when route matched
             this.loadMessages();
@@ -38,15 +41,15 @@ sap.ui.define([
         loadMessages: function () {
             // Get messages from backend
             const chat = this.getView().getBindingContext();
-            const binding = this.getModel().bindList(`messages`, chat, new sap.ui.model.Sorter("chatTime", true), null,{
-                $select : ["ID","role","content","chatTime"]
+            const binding = this.getModel().bindList(`messages`, chat, new sap.ui.model.Sorter("chatTime", true), null, {
+                $select: ["ID", "role", "content", "chatTime"]
             });
 
 
             binding.requestContexts().then((contexts) => {
                 // const messages = contexts.map(context => context.getObject());
                 const messages = contexts.map(context => {
-                    return {    
+                    return {
                         ...context.getObject(),
                         chatTime: new Date(context.getObject().chatTime)
                     }
@@ -76,7 +79,7 @@ sap.ui.define([
         },
 
         onPostMessage: function (event) {
-            
+
             const messageList = this.getView().byId("messageListWithStream");
             const feedInput = this.getView().byId("newMessageInput");
             const message = event.getParameter("value");
@@ -123,6 +126,10 @@ sap.ui.define([
                     this._isProcessing = false;
                     feedInput.setEnabled(true);
                     feedInput.setValue("");
+                    // refresh title of Object Page
+                    chat.refresh();
+                    // refresh current context of the chat list
+                    this._triggerChatListRefresh(chat);
                 }.bind(this)
             });
 
@@ -130,13 +137,22 @@ sap.ui.define([
             messageHandler.createMessageAndCompletion(true,
                 sap.ui.require.toUrl(`${this.getOwnerComponent().getManifest()["sap.app"].id}/api/chat/completion/streaming`)
             );
-            // .then(function () {
-            //     console.log("Message posted successfully");
-            // })
-            // .catch(function (error) {
-            //     console.error("Error posting message:", error);
-            // });
+
         },
+
+        _triggerChatListRefresh: function (chat) {
+            var that = this
+            chat.requestProperty("ID").then((chatId) => {
+                var oBus = that.getOwnerComponent().getEventBus();
+                oBus.publish("ChatsChannel", "TitleUpdated", {
+                    ID: chatId
+                });
+            });
+            // const chatList = this.getView().byId("chatList");
+            // const binding = chatList.getBinding("items");
+            // binding.refresh();
+        },
+
 
         addKeyboardEventsToInput: function () {
             const input = this.getView().byId("newMessageInput");
@@ -149,10 +165,6 @@ sap.ui.define([
             });
         },
         scrollToListEnd: function () {
-            // if (!this._dialogWithStream) {
-            //     return;
-            // }
-
             const listEndMarker = this.getView().byId("listEndMarkerWithStream");
             if (listEndMarker && listEndMarker.getDomRef()) {
                 UIHelper.scrollToElement(listEndMarker.getDomRef());
