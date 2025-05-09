@@ -103,15 +103,4 @@ public class EntityService {
         chat.setTitle(title);
         service.run(Update.entity(Chats_.class).data(chat));
     }
-
-    // public void updateReport(
-    //         AIService service,
-    //         AIService.Draft serviceDraft,
-    //         Reports report) {
-    //     if (report.getIsActiveEntity()) {
-    //         service.run(Update.entity(Reports_.class).data(report));
-    //     } else {
-    //         serviceDraft.patchDraft(Update.entity(Reports_.class).data(report));
-    //     }
-    // }
 }

@@ -63,6 +63,17 @@ chatbot/
 - Java 17+
 - SAP UI5 CLI/Fiori Tools Extension
 
+## 配置说明
+
+1. AI 服务配置 (`srv/src/main/resources/application.yaml`):
+```yaml
+ai:
+  systemPrompt: "You are Claude 3.5 Sonnet..."
+  claude:
+    apiKey: "your-api-key"
+    baseUrl: "https://api.anthropic.com"
+```
+
 ## 快速开始
 
 1. 安装依赖：
@@ -94,16 +105,7 @@ cd app/chatbotui
 npm run start
 ```
 
-## 配置说明
 
-1. AI 服务配置 (`srv/src/main/resources/application.yaml`):
-```yaml
-ai:
-  systemPrompt: "You are Claude 3.5 Sonnet..."
-  claude:
-    apiKey: "your-api-key"
-    baseUrl: "https://api.anthropic.com"
-```
 
 ## 开发指南
 
