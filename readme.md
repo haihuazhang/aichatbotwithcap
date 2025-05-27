@@ -65,13 +65,20 @@ chatbot/
 
 ## 配置说明
 
-1. AI 服务配置 (`srv/src/main/resources/application.yaml`):
+AI 服务配置 (`srv/src/main/resources/application.yaml`):
+1. 注册硅基流动账号
+    https://siliconflow.cn/
+    * API密钥 -> 生成API密钥
+    * 模型广场 -> 选择一个大语言模型
+2. 修改程序配置
+    * api key
+    * model
 ```yaml
 ai:
-  systemPrompt: "You are Claude 3.5 Sonnet..."
-  claude:
-    apiKey: "your-api-key"
-    baseUrl: "https://api.anthropic.com"
+  deepseek:
+    api-key: your-deepseek-api-key
+    api-url: https://api.siliconflow.cn/v1
+    model: Qwen/Qwen3-30B-A3B
 ```
 
 ## 快速开始
